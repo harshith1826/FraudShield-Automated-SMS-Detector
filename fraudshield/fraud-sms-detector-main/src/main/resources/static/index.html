@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FraudShield SOC — Threat Intelligence Console</title>
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="/css/dashboard.css">
+</head>
+<body>
+
+  <!-- Toast container -->
+  <div id="toastContainer" class="toast-container"></div>
+
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-mark"><i class="fa-solid fa-shield-halved"></i></div>
+      <div>
+        <div class="brand-text">Fraud<span>Shield</span> <small>SOC</small></div>
+        <div class="brand-sub">Threat Intelligence Console</div>
+      </div>
+    </div>
+
+    <div class="status-strip">
+      <div class="status-pill" id="statusMongo">
+        <span class="status-dot"></span> MongoDB
+      </div>
+      <div class="status-pill" id="statusAi">
+        <span class="status-dot"></span> AI Service
+      </div>
+      <div class="status-pill" id="statusLatency">
+        <i class="fa-regular fa-clock"></i> <span id="latencyValue">--</span> ms
+      </div>
+      <div class="status-pill live-pill">
+        <span class="live-dot"></span> <span id="autoRefreshLabel">Live · 8s</span>
+      </div>
+      <button id="refreshBtn" class="btn-fs ghost"><i class="fa-solid fa-rotate"></i> Refresh</button>
+    </div>
+  </header>
+
+  <main class="dashboard-container">
+
+    <div class="updated-row">
+      <span class="section-eyebrow">Last updated: <span id="lastUpdated">--</span></span>
+    </div>
+
+    <!-- Stat Cards -->
+    <div class="section-label"><i class="fa-solid fa-gauge-high"></i> Overview</div>
+    <div class="stat-grid">
+      <div class="stat-card glass">
+        <div class="stat-icon"><i class="fa-solid fa-inbox"></i></div>
+        <div class="stat-value" id="cardTotal">0</div>
+        <div class="stat-label">Total SMS Analysed</div>
+      </div>
+      <div class="stat-card glass tone-red">
+        <div class="stat-icon"><i class="fa-solid fa-triangle-exclamation"></i></div>
+        <div class="stat-value" id="cardFraud">0</div>
+        <div class="stat-label">Fraud SMS</div>
+      </div>
+      <div class="stat-card glass tone-green">
+        <div class="stat-icon"><i class="fa-solid fa-circle-check"></i></div>
+        <div class="stat-value" id="cardSafe">0</div>
+        <div class="stat-label">Safe SMS</div>
+      </div>
+      <div class="stat-card glass tone-amber">
+        <div class="stat-icon"><i class="fa-solid fa-circle-question"></i></div>
+        <div class="stat-value" id="cardSuspicious">0</div>
+        <div class="stat-label">Suspicious SMS</div>
+      </div>
+      <div class="stat-card glass tone-red">
+        <div class="stat-icon"><i class="fa-solid fa-ban"></i></div>
+        <div class="stat-value" id="cardBlacklist">0</div>
+        <div class="stat-label">Blocked by Blacklist</div>
+      </div>
+      <div class="stat-card glass tone-green">
+        <div class="stat-icon"><i class="fa-solid fa-unlock"></i></div>
+        <div class="stat-value" id="cardWhitelist">0</div>
+        <div class="stat-label">Allowed by Whitelist</div>
+      </div>
+      <div class="stat-card glass tone-blue">
+        <div class="stat-icon"><i class="fa-solid fa-brain"></i></div>
+        <div class="stat-value" id="cardAi">0</div>
+        <div class="stat-label">Total AI Predictions</div>
+      </div>
+      <div class="stat-card glass tone-blue">
+        <div class="stat-icon"><i class="fa-solid fa-percent"></i></div>
+        <div class="stat-value"><span id="cardAvgConfidence">0</span>%</div>
+        <div class="stat-label">Average Confidence</div>
+      </div>
+      <div class="stat-card glass tone-amber">
+        <div class="stat-icon"><i class="fa-solid fa-calendar-day"></i></div>
+        <div class="stat-value" id="cardToday">0</div>
+        <div class="stat-label">Today's Analysis</div>
+      </div>
+    </div>
+
+    <!-- Charts Row 1 -->
+    <div class="section-label"><i class="fa-solid fa-chart-pie"></i> Analytics</div>
+    <div class="chart-row chart-row-3">
+      <div class="panel glass">
+        <div class="panel-title">Fraud vs Safe <small>Distribution</small></div>
+        <div class="chart-box"><canvas id="fraudSafeChart"></canvas></div>
+      </div>
+      <div class="panel glass">
+        <div class="panel-title">Threat Category <small>Breakdown</small></div>
+        <div class="chart-box"><canvas id="categoryChart"></canvas></div>
+      </div>
+      <div class="panel glass">
+        <div class="panel-title">Confidence Distribution <small>AI Predictions</small></div>
+        <div class="chart-box"><canvas id="confidenceChart"></canvas></div>
+      </div>
+    </div>
+
+    <!-- Charts Row 2 -->
+    <div class="chart-row chart-row-3">
+      <div class="panel glass" style="grid-column: span 1;">
+        <div class="panel-title">Daily SMS Trend <small>Last activity</small></div>
+        <div class="chart-box"><canvas id="dailyChart"></canvas></div>
+      </div>
+      <div class="panel glass">
+        <div class="panel-title">Top Fraud Senders <small>Top 5</small></div>
+        <div class="chart-box"><canvas id="topSendersChart"></canvas></div>
+      </div>
+      <div class="panel glass">
+        <div class="panel-title">Top Fraud URLs <small>Top 5</small></div>
+        <div class="chart-box"><canvas id="topUrlsChart"></canvas></div>
+      </div>
+    </div>
+
+    <!-- Recent SMS Analysis -->
+    <div class="section-label"><i class="fa-solid fa-table-list"></i> Recent SMS Analysis</div>
+    <div class="panel glass">
+      <div class="filter-bar">
+        <div class="search-wrap">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <input type="text" id="searchBox" placeholder="Search sender, message, URL, verdict..." />
+        </div>
+        <input type="text" id="filterSender" placeholder="Sender" />
+        <input type="text" id="filterUrl" placeholder="URL" />
+        <select id="filterVerdict">
+          <option value="">All verdicts</option>
+          <option value="FRAUD">Fraud</option>
+          <option value="SAFE">Safe</option>
+          <option value="SUSPICIOUS">Suspicious</option>
+        </select>
+        <input type="date" id="filterDate" />
+        <select id="sortBy">
+          <option value="analyzedAt">Sort: Timestamp</option>
+          <option value="confidence">Sort: Confidence</option>
+          <option value="sender">Sort: Sender</option>
+          <option value="verdict">Sort: Verdict</option>
+        </select>
+        <select id="sortDir">
+          <option value="desc">Descending</option>
+          <option value="asc">Ascending</option>
+        </select>
+        <button id="applyFilters" class="btn-fs">Apply</button>
+        <button id="clearFilters" class="btn-fs ghost">Clear</button>
+        <button id="exportCsv" class="btn-fs success"><i class="fa-solid fa-download"></i> Export CSV</button>
+      </div>
+
+      <div class="table-scroll">
+        <table class="table-fs">
+          <thead>
+            <tr>
+              <th>Sender</th>
+              <th>Message</th>
+              <th>URL</th>
+              <th>Verdict</th>
+              <th>Confidence</th>
+              <th>Category</th>
+              <th>Action</th>
+              <th>Timestamp</th>
+            </tr>
+          </thead>
+          <tbody id="historyTableBody">
+            <tr><td colspan="8" class="empty-row"><div class="spinner"></div> Loading records...</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="pagination-bar">
+        <span id="paginationInfo" class="pagination-info">--</span>
+        <div class="pagination-controls">
+          <button id="prevPage" class="btn-fs ghost small"><i class="fa-solid fa-chevron-left"></i></button>
+          <span id="pageIndicator" class="page-indicator">1 / 1</span>
+          <button id="nextPage" class="btn-fs ghost small"><i class="fa-solid fa-chevron-right"></i></button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Whitelist / Blacklist -->
+    <div class="section-label"><i class="fa-solid fa-list-check"></i> List Management</div>
+    <div class="two-col">
+      <div class="panel glass">
+        <div class="panel-title">Whitelist <small>Verified safe senders / domains</small></div>
+        <div class="table-scroll">
+          <table class="table-fs">
+            <thead>
+              <tr><th>Sender</th><th>URL</th><th>Type</th><th>Created</th></tr>
+            </thead>
+            <tbody id="whitelistTableBody">
+              <tr><td colspan="4" class="empty-row"><div class="spinner"></div> Loading...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="panel glass">
+        <div class="panel-title">Blacklist <small>Known malicious senders / domains</small></div>
+        <div class="table-scroll">
+          <table class="table-fs">
+            <thead>
+              <tr><th>Sender</th><th>URL</th><th>Type</th><th>Created</th></tr>
+            </thead>
+            <tbody id="blacklistTableBody">
+              <tr><td colspan="4" class="empty-row"><div class="spinner"></div> Loading...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <footer class="dash-footer">FraudShield Threat Intelligence Console &middot; SOC Build</footer>
+
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+  <script src="/js/dashboard.js"></script>
+</body>
+</html>

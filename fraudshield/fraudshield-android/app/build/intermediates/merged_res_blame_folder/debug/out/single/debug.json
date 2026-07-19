@@ -1,0 +1,18 @@
+[
+    {
+        "merged": "C:\\Users\\shreya\\.gradle\\daemon\\8.7\\com.fraudshield.app-merged_res-42:\\drawable_badge_background.xml.flat",
+        "source": "C:\\Users\\shreya\\.gradle\\daemon\\8.7\\com.fraudshield.app-main-44:\\drawable\\badge_background.xml"
+    },
+    {
+        "merged": "C:\\Users\\shreya\\.gradle\\daemon\\8.7\\com.fraudshield.app-merged_res-42:\\layout_item_sms.xml.flat",
+        "source": "C:\\Users\\shreya\\.gradle\\daemon\\8.7\\com.fraudshield.app-main-44:\\layout\\item_sms.xml"
+    },
+    {
+        "merged": "com.fraudshield.app-merged_res-42:/layout_item_sms.xml.flat",
+        "source": "com.fraudshield.app-main-44:/layout/item_sms.xml"
+    },
+    {
+        "merged": "C:\\Users\\shreya\\.gradle\\daemon\\8.7\\com.fraudshield.app-merged_res-42:\\layout_activity_sms_list.xml.flat",
+        "source": "C:\\Users\\shreya\\.gradle\\daemon\\8.7\\com.fraudshield.app-main-44:\\layout\\activity_sms_list.xml"
+    }
+]

@@ -1,0 +1,17 @@
+R_DEF: Internal format may change without notice
+local
+drawable badge_background
+id btnFraud
+id btnSafe
+id feedbackDoneText
+id feedbackLayout
+id recyclerView
+id senderText
+id sourceText
+id timeText
+id urlText
+id verdictBadge
+layout activity_sms_list
+layout item_sms
+string app_name
+style Theme.FraudShield

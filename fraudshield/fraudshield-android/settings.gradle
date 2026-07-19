@@ -1,0 +1,2 @@
+rootProject.name = "FraudShield"
+include ':app'
